@@ -46,14 +46,14 @@ fecha_pa_filtrar_str = fecha_pa_filtrar.strftime('%m/%d/%Y')  # Convert to strin
 
 # 2. File Uploader para el portafolio (Excel)
 portafolio_file = st.sidebar.file_uploader(
-    'Sube el archivo del portafolio (Excel)',
+    'Sube el archivo del portafolio (Excel), El archivo debe tener la siguiente forma. Ejemplo: portafolio_24octubre.xlsx ',
     type=['xlsx'],
     help='El archivo debe tener la siguiente forma. Ejemplo: portafolio_24octubre.xlsx'
 )
 
 # 3. File Uploader para las transacciones del día (CSV)
 transacciones_file = st.sidebar.file_uploader(
-    'Sube el archivo de transacciones del día (CSV)',
+    'Sube el archivo de transacciones del día (CSV), El archivo debe tener la siguiente forma. Ejemplo: opera_24octubre.csv',
     type=['csv'],
     help='El archivo debe tener la siguiente forma. Ejemplo: opera_24octubre.csv.'
 )
