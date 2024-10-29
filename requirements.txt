@@ -1,4 +1,3 @@
 streamlit
-base64
 io
 pandas
