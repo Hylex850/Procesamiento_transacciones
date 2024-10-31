@@ -5,7 +5,7 @@ from io import BytesIO
 def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     # Inicio del primer código (Normal)
     # IMPORTANTE!!! PARAMETROS PARA EDITAR CADA VEZ QUE SE USE EL PROGRAMA
-
+    
     # Fecha para filtrar las transacciones
     # fecha_pa_filtrar = "10/24/2024"  # Ahora es un parámetro
 
@@ -475,6 +475,67 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
                     portafolio_final.at[compra_elegida.name, 'cantidad'] -= cantidad_compra
             else:
                 break
+            
+    # Supongamos que ventas_df es tu DataFrame
+
+    # Eliminar el signo de dólar y convertir a float
+    ventas_df['Fees & Comm'] = ventas_df['Fees & Comm'].replace('[\$,]', '', regex=True).astype(float)
+
+
+    # In[143]:
+
+
+    # Fill NaN values in 'Quantity_compra' with 0
+    ventas_df['Fees & Comm'].fillna(0, inplace=True)
+
+
+    # ## Recalcular el PnL restando las tarifas
+
+    # In[144]:
+
+
+    # Recalcular el PnL restando las tarifas
+    ventas_df['PnL'] = (ventas_df['Price'] - ventas_df['costo']) * ventas_df['Quantity'] - ventas_df['Fees & Comm']
+
+
+    # In[147]:
+            
+    # Iterar sobre cada fila del DataFrame de ventas
+    for i, venta in ventas_df.iterrows():
+        # Continuar solo si la cantidad vendida es mayor que la cantidad ya comprada
+        while venta['Quantity'] > venta['Quantity_compra']:
+            # Filtrar las compras que tienen el mismo símbolo y cuyo precio sea menor al de la venta
+            posibles_compras = portafolio_final[(portafolio_final['Accion'] == venta['Symbol'])]
+
+            # Si hay compras posibles, encontrar la compra con el precio más alto
+            if not posibles_compras.empty:
+                max_precio_compra = posibles_compras['precio_compra'].min()
+                compra_elegida = posibles_compras[posibles_compras['precio_compra'] == max_precio_compra].iloc[0]
+
+                fecha_compra = compra_elegida['fecha']
+                cantidad_compra = min(compra_elegida['cantidad'], venta['Quantity'] - venta['Quantity_compra'])
+
+                # Asignar el precio y la fecha de compra al DataFrame de ventas
+                # Ponderar el costo basado en la proporción de la cantidad comprada
+                ventas_df.at[i, 'costo'] += max_precio_compra * (cantidad_compra / venta['Quantity'])
+                ventas_df.at[i, 'fecha_compra'] = fecha_compra
+                ventas_df.at[i, 'Quantity_compra'] += cantidad_compra
+
+                # Actualizar la cantidad aún necesaria en la venta
+                venta['Quantity_compra'] += cantidad_compra
+
+                # Ajustar la cantidad en portafolio_final o eliminar la fila si la compra se ha agotado
+                if compra_elegida['cantidad'] == cantidad_compra:
+                    # Eliminar la compra usada del DataFrame de compras
+                    portafolio_final = portafolio_final.drop(compra_elegida.name)
+                else:
+                    # Restar la cantidad usada de la fila correspondiente
+                    portafolio_final.at[compra_elegida.name, 'cantidad'] -= cantidad_compra
+
+            else:
+                # No hay más compras posibles que cumplan las condiciones, salir del while
+                break
+
 
     # Borro el simbolo $ de la columna fees y lleno los NA con 0
     ventas_df['Fees & Comm'] = ventas_df['Fees & Comm'].replace('[\$,]', '', regex=True).astype(float)
