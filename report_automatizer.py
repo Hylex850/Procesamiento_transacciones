@@ -675,7 +675,16 @@ def main():
 
                 st.success('Procesamiento completado.')
                 st.write('Descarga los archivos resultantes:')
+                
+                
+                def to_excel(df):
+                    output = io.BytesIO()
+                    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                        df.to_excel(writer, index=False)
+                        processed_data = output.getvalue()
+                        return processed_data
 
+                """
                 # Función auxiliar para convertir DataFrame a Excel en memoria
                 def to_excel(df):
                     output = io.BytesIO()
@@ -684,7 +693,7 @@ def main():
                     writer.save()
                     processed_data = output.getvalue()
                     return processed_data
-
+                """
                 # Convertir los DataFrames a archivos Excel
                 ventas_xlsx = to_excel(ventas_df)
                 buys_xlsx = to_excel(buys_df)
