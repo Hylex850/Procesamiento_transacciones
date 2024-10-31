@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import io
+from io import BytesIO
 
 def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     # Inicio del primer código (Normal)
@@ -677,18 +677,22 @@ def main():
                 st.write('Descarga los archivos resultantes:')
                 
                 
-                def to_excel(df):
-                    output = io.BytesIO()
-                    with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                        df.to_excel(writer, index=False)
-                        processed_data = output.getvalue()
-                        return processed_data
+                def convertir_a_excel(df):
+                    # Crear un buffer en memoria
+                    buffer = BytesIO()
+                    # Escribir el DataFrame en el buffer como archivo Excel
+                    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                        df.to_excel(writer, index=False, sheet_name='Hoja1')
+                        # Obtener el contenido del buffer
+                        buffer.seek(0)
+                        return buffer
+
                 
 
                 # Convertir los DataFrames a archivos Excel
-                ventas_xlsx = to_excel(ventas_df)
-                buys_xlsx = to_excel(buys_df)
-                portafolio_xlsx = to_excel(portafolio_final)
+                ventas_xlsx = convertir_a_excel(ventas_df)
+                buys_xlsx = convertir_a_excel(buys_df)
+                portafolio_xlsx = convertir_a_excel(portafolio_final)
 
                 # Botones para descargar los archivos resultantes
                 st.download_button(
