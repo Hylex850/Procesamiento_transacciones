@@ -653,7 +653,7 @@ def main():
     dia_y_mes = st.text_input('Día y mes para los archivos de salida (ejemplo: 24octubre)', '24octubre')
 
     # Selección del código a utilizar
-    codigo_seleccionado = st.radio('Seleccione el código a utilizar:', ['Normal', 'Opción 2'])
+    codigo_seleccionado = st.radio('Seleccione el código a utilizar:', ['Normal (pueden quedar huecos)', 'Sin huecos (los cortos se manejan como perdida)'])
 
     # Botón para procesar
     if st.button('Procesar'):
@@ -668,7 +668,7 @@ def main():
                 fecha_pa_filtrar_dt = pd.to_datetime(fecha_pa_filtrar)
 
                 # Ejecutar el código seleccionado
-                if codigo_seleccionado == 'Normal':
+                if codigo_seleccionado == 'Normal (pueden quedar huecos)':
                     ventas_df, buys_df, portafolio_final = process_normal(portafolio, transacciones_dia, fecha_pa_filtrar_dt, dia_y_mes)
                 else:
                     ventas_df, buys_df, portafolio_final = process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar_dt, dia_y_mes)
