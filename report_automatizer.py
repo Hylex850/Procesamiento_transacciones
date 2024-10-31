@@ -716,6 +716,14 @@ def main():
     # Selección del código a utilizar
     codigo_seleccionado = st.radio('Seleccione el código a utilizar:', ['Normal (pueden quedar huecos)', 'Sin huecos (los cortos se manejan como perdida)'])
 
+    # Inicializar variables en session_state si no existen
+    if 'ventas_xlsx' not in st.session_state:
+        st.session_state['ventas_xlsx'] = None
+    if 'buys_xlsx' not in st.session_state:
+        st.session_state['buys_xlsx'] = None
+    if 'portafolio_xlsx' not in st.session_state:
+        st.session_state['portafolio_xlsx'] = None
+
     # Botón para procesar
     if st.button('Procesar'):
         # Verificar que los archivos y campos necesarios están proporcionados
@@ -736,50 +744,51 @@ def main():
 
                 st.success('Procesamiento completado.')
                 st.write('Descarga los archivos resultantes:')
-                
-                
+
                 def convertir_a_excel(df):
                     # Crear un buffer en memoria
                     buffer = BytesIO()
                     # Escribir el DataFrame en el buffer como archivo Excel
                     with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
                         df.to_excel(writer, index=False, sheet_name='Hoja1')
-                        # Obtener el contenido del buffer
-                        buffer.seek(0)
-                        return buffer
+                    # Obtener el contenido del buffer
+                    buffer.seek(0)
+                    return buffer.getvalue()  # Retornar los bytes directamente
 
-                
+                # Convertir los DataFrames a archivos Excel y almacenar en session_state
+                st.session_state['ventas_xlsx'] = convertir_a_excel(ventas_df)
+                st.session_state['buys_xlsx'] = convertir_a_excel(buys_df)
+                st.session_state['portafolio_xlsx'] = convertir_a_excel(portafolio_final)
 
-                # Convertir los DataFrames a archivos Excel
-                ventas_xlsx = convertir_a_excel(ventas_df)
-                buys_xlsx = convertir_a_excel(buys_df)
-                portafolio_xlsx = convertir_a_excel(portafolio_final)
-
-                # Botones para descargar los archivos resultantes
-                st.download_button(
-                    label=f'Descargar costo_{dia_y_mes}.xlsx',
-                    data=ventas_xlsx,
-                    file_name=f'costo_{dia_y_mes}.xlsx',
-                    mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                )
-
-                st.download_button(
-                    label=f'Descargar compras_{dia_y_mes}.xlsx',
-                    data=buys_xlsx,
-                    file_name=f'compras_{dia_y_mes}.xlsx',
-                    mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                )
-
-                st.download_button(
-                    label=f'Descargar portafolio_{dia_y_mes}.xlsx',
-                    data=portafolio_xlsx,
-                    file_name=f'portafolio_{dia_y_mes}.xlsx',
-                    mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                )
             except Exception as e:
                 st.error(f'Ocurrió un error durante el procesamiento: {e}')
         else:
             st.error('Por favor, asegúrate de haber cargado los archivos y completado todos los campos.')
+
+    # Mostrar los botones de descarga si los archivos están disponibles en session_state
+    if st.session_state['ventas_xlsx'] and st.session_state['buys_xlsx'] and st.session_state['portafolio_xlsx']:
+        st.write('### Archivos Generados')
+        
+        st.download_button(
+            label=f'Descargar costo_{dia_y_mes}.xlsx',
+            data=st.session_state['ventas_xlsx'],
+            file_name=f'costo_{dia_y_mes}.xlsx',
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+
+        st.download_button(
+            label=f'Descargar compras_{dia_y_mes}.xlsx',
+            data=st.session_state['buys_xlsx'],
+            file_name=f'compras_{dia_y_mes}.xlsx',
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+
+        st.download_button(
+            label=f'Descargar portafolio_{dia_y_mes}.xlsx',
+            data=st.session_state['portafolio_xlsx'],
+            file_name=f'portafolio_{dia_y_mes}.xlsx',
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
 
 if __name__ == '__main__':
     main()
