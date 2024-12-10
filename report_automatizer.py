@@ -283,6 +283,9 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     result_df_buys = pd.concat([result_df_buys, pd.DataFrame([total_buys])], ignore_index=True)
 
     buys_df = result_df_buys
+    
+    portafolio_final['valor_invertido'] = portafolio_final['cantidad'] * portafolio_final['precio_compra']
+
 
     # Portafolio final
     def add_subtotal_portafolio(group):
@@ -665,6 +668,9 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     result_df_buys = pd.concat([result_df_buys, pd.DataFrame([total_buys])], ignore_index=True)
 
     buys_df = result_df_buys
+    
+    portafolio_final['valor_invertido'] = portafolio_final['cantidad'] * portafolio_final['precio_compra']
+
 
     # Portafolio final
     def add_subtotal_portafolio(group):
