@@ -389,6 +389,9 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
         'cantidad': buys_df['Quantity'],
         'precio_compra': buys_df['Price']
     })
+    
+    converted_buys['valor_invertido'] = converted_buys['cantidad'] * converted_buys['precio_compra']
+
 
     portafolio_final = pd.concat([portafolio, converted_buys], ignore_index=True)
     portafolio_final = portafolio_final.sort_values(by=['Accion', 'precio_compra'], ascending=[True, True])
