@@ -196,6 +196,7 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
         'fecha_compra': 'FECHA DE COMPRA',
         'PnL': 'UTILIDAD'
     }, inplace=True)
+    ventas_df.drop('FECHA DE COMPRA', axis=1, inplace=True)
 
     # Lista de columnas que necesitan conversión
     columnas_a_convertir = ['CANTIDAD VENDIDA', 'PRECIO DE VENTA', 'venta_total', 'compra_total', 'UTILIDAD']
@@ -581,6 +582,7 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
         'fecha_compra': 'FECHA DE COMPRA',
         'PnL': 'UTILIDAD'
     }, inplace=True)
+    ventas_df.drop('FECHA DE COMPRA', axis=1, inplace=True)
 
     # Lista de columnas que necesitan conversión
     columnas_a_convertir = ['CANTIDAD VENDIDA', 'PRECIO DE VENTA', 'venta_total', 'compra_total', 'UTILIDAD']
