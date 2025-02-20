@@ -14,8 +14,13 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime
 import json
 
-# Function to interact with Google Sheets
-def update_google_sheet():
+
+    
+def update_google_sheet(ventas_df):
+    """
+    Actualiza Google Sheets con la fecha de hoy, la utilidad total diaria,
+    el porcentaje de utilidad y el total de ventas.
+    """
     # Load credentials from Streamlit secrets
     secrets = st.secrets["Google_cloud_platform"]
     creds = Credentials.from_service_account_info(
@@ -25,21 +30,32 @@ def update_google_sheet():
     client = gspread.authorize(creds)
 
     # Open the Google Sheet
-    sheet_id = "157CHLt-Re4oswqd_2c_1mXgkeVo8Sc-iOsafuBHUPJA"  # Replace with your Google Sheet ID
+    sheet_id = "157CHLt-Re4oswqd_2c_1mXgkeVo8Sc-iOsafuBHUPJA"  # Reemplaza con tu ID de Google Sheet
     workbook = client.open_by_key(sheet_id)
     sheet = workbook.sheet1
 
     # Get today's date
     fecha_hoy = datetime.now().strftime("%Y-%m-%d")
 
+    # Calcular los totales
+    utilidad_total =  ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', 'UTILIDAD'].values[0]
+    porcentaje_utilidad = ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', '%'].values[0]
+
+
+    total_ventas = ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', 'venta_total'].values[0]
+
+
+
     # Find the first empty row in column A
     columna_a = sheet.col_values(1)  # Get all values in column A
     fila_vacia = len(columna_a) + 1  # First empty row is the next row after the last row with data
 
-    # Write today's date in the empty cell
-    sheet.update_cell(fila_vacia, 1, fecha_hoy)
+    # Write today's date, utility, percentage, and total sales in the empty row
+    sheet.update(f"A{fila_vacia}:D{fila_vacia}", [[fecha_hoy, utilidad_total,total_ventas , porcentaje_utilidad]])
 
-    st.success(f"Fecha de hoy ({fecha_hoy}) escrita en la celda A{fila_vacia}.")
+    st.success(
+        "Datos escritos en el excel de google"
+    )
 
 
 def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
@@ -768,7 +784,7 @@ def main():
     
     
     # Selección del modo (CMB o FT)
-    modo = st.radio('Seleccione el modo:', ['CMB (Normal)', 'FT (Sube resultados al Excel)'])
+    modo = st.radio('Seleccione el modo:', ['CMB (Normal)', 'FT (Sube resultados al Excel de google)'])
     
     
     
@@ -825,8 +841,8 @@ def main():
                 st.session_state['portafolio_xlsx'] = convertir_a_excel(portafolio_final)
                 
                 # Si el modo es FT, actualizar Google Sheets
-                if modo == 'FT (Sube resultados al Excel)':
-                    update_google_sheet()
+                if modo == 'FT (Sube resultados al Excel de google)':
+                    update_google_sheet(ventas_df)
 
             except Exception as e:
                 st.error(f'Ocurrió un error durante el procesamiento: {e}')
