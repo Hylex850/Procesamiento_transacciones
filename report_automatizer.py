@@ -16,7 +16,7 @@ import json
 
 
     
-def update_google_sheet(ventas_df):
+def update_google_sheet(ventas_df,fecha_pa_filtrar):
     """
     Actualiza Google Sheets con la fecha de hoy, la utilidad total diaria,
     el porcentaje de utilidad y el total de ventas.
@@ -35,7 +35,13 @@ def update_google_sheet(ventas_df):
     sheet = workbook.sheet1
 
     # Get today's date
-    fecha_hoy = datetime.now().strftime("%Y-%m-%d")
+    #fecha_hoy = datetime.now().strftime("%Y-%m-%d")
+    
+    # Convertir de mm/dd/yyyy a datetime
+    fecha_datetime = datetime.strptime(fecha_pa_filtrar, "%m/%d/%Y")
+
+    # Formatear a dd/mm/yyyy
+    fecha_pa_filtrar = fecha_datetime.strftime("%d/%m/%Y")
 
     # Calcular los totales
     utilidad_total =  ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', 'UTILIDAD'].values[0]
@@ -842,7 +848,7 @@ def main():
                 
                 # Si el modo es FT, actualizar Google Sheets
                 if modo == 'FT (Sube resultados al Excel de google)':
-                    update_google_sheet(ventas_df)
+                    update_google_sheet(ventas_df,fecha_pa_filtrar)
 
             except Exception as e:
                 st.error(f'Ocurrió un error durante el procesamiento: {e}')
