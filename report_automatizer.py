@@ -9,6 +9,38 @@ Created on Tue Dec  3 23:21:36 2024
 import streamlit as st
 import pandas as pd
 from io import BytesIO
+import gspread
+from google.oauth2.service_account import Credentials
+from datetime import datetime
+import json
+
+# Function to interact with Google Sheets
+def update_google_sheet():
+    # Load credentials from Streamlit secrets
+    secrets = st.secrets["Google_cloud_platform"]
+    creds = Credentials.from_service_account_info(
+        json.loads(secrets["service_account_key"]),
+        scopes=["https://www.googleapis.com/auth/spreadsheets"],
+    )
+    client = gspread.authorize(creds)
+
+    # Open the Google Sheet
+    sheet_id = "157CHLt-Re4oswqd_2c_1mXgkeVo8Sc-iOsafuBHUPJA"  # Replace with your Google Sheet ID
+    workbook = client.open_by_key(sheet_id)
+    sheet = workbook.sheet1
+
+    # Get today's date
+    fecha_hoy = datetime.now().strftime("%Y-%m-%d")
+
+    # Find the first empty row in column A
+    columna_a = sheet.col_values(1)  # Get all values in column A
+    fila_vacia = len(columna_a) + 1  # First empty row is the next row after the last row with data
+
+    # Write today's date in the empty cell
+    sheet.update_cell(fila_vacia, 1, fecha_hoy)
+
+    st.success(f"Fecha de hoy ({fecha_hoy}) escrita en la celda A{fila_vacia}.")
+
 
 def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     # Inicio del primer código (Normal)
@@ -733,7 +765,18 @@ def main():
     # Inputs adicionales
     fecha_pa_filtrar = st.text_input('Fecha para filtrar las transacciones (formato MM/DD/AAAA)', '10/24/2024')
     dia_y_mes = st.text_input('Día y mes para los archivos de salida (ejemplo: 24octubre)', '24octubre')
-
+    
+    
+    # Selección del modo (CMB o FT)
+    modo = st.radio('Seleccione el modo:', ['CMB (Normal)', 'FT (Sube resultados al Excel)'])
+    
+    
+    
+    
+    
+    
+    
+    
     # Selección del código a utilizar
     codigo_seleccionado = st.radio('Seleccione el código a utilizar:', ['Normal (pueden quedar huecos)', 'Sin huecos (los cortos se manejan como perdida)'])
 
@@ -780,6 +823,10 @@ def main():
                 st.session_state['ventas_xlsx'] = convertir_a_excel(ventas_df)
                 st.session_state['buys_xlsx'] = convertir_a_excel(buys_df)
                 st.session_state['portafolio_xlsx'] = convertir_a_excel(portafolio_final)
+                
+                # Si el modo es FT, actualizar Google Sheets
+                if modo == 'FT (Sube resultados al Excel)':
+                    update_google_sheet()
 
             except Exception as e:
                 st.error(f'Ocurrió un error durante el procesamiento: {e}')
