@@ -41,7 +41,7 @@ def update_google_sheet(ventas_df,fecha_pa_filtrar):
     fecha_datetime = datetime.strptime(fecha_pa_filtrar, "%m/%d/%Y")
 
     # Formatear a dd/mm/yyyy
-    fecha_pa_filtrar = fecha_datetime.strftime("%d/%m/%Y")
+    fecha_hoy = fecha_datetime.strftime("%d/%m/%Y")
 
     # Calcular los totales
     utilidad_total =  ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', 'UTILIDAD'].values[0]
