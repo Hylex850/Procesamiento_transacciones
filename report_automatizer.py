@@ -16,7 +16,7 @@ import json
 
 
     
-def update_google_sheet(ventas_df,fecha_pa_filtrar):
+def update_google_sheet(ventas_df, positions_df, fecha_pa_filtrar):
     """
     Actualiza Google Sheets con la fecha de hoy, la utilidad total diaria,
     el porcentaje de utilidad y el total de ventas.
@@ -783,6 +783,7 @@ def main():
     # Widgets para cargar archivos
     portafolio_file = st.file_uploader('Subir archivo de portafolio (formato Excel)', type=['xlsx'])
     transacciones_file = st.file_uploader('Subir archivo de transacciones (formato CSV)', type=['csv'])
+    positions_file = st.file_uploader('Subir archivo de posiciones (formato CSV)', type=['csv'])
 
     # Inputs adicionales
     fecha_pa_filtrar = st.text_input('Fecha para filtrar las transacciones (formato MM/DD/AAAA)', '10/24/2024')
@@ -818,6 +819,14 @@ def main():
                 # Leer los archivos cargados
                 portafolio = pd.read_excel(portafolio_file)
                 transacciones_dia = pd.read_csv(transacciones_file)
+                
+                # Leer posiciones solo si es necesario
+                positions_df = None
+                if modo == 'FT (Sube resultados al Excel de google)':
+                    if not positions_file:
+                        st.error("Se requiere el archivo de posiciones para el modo FT")
+                        return
+                    positions_df = pd.read_csv(positions_file)
 
                 # Convertir fecha de filtro a formato datetime
                 fecha_pa_filtrar_dt = pd.to_datetime(fecha_pa_filtrar)
@@ -848,7 +857,7 @@ def main():
                 
                 # Si el modo es FT, actualizar Google Sheets
                 if modo == 'FT (Sube resultados al Excel de google)':
-                    update_google_sheet(ventas_df,fecha_pa_filtrar)
+                    update_google_sheet(ventas_df, positions_df, fecha_pa_filtrar)
 
             except Exception as e:
                 st.error(f'Ocurrió un error durante el procesamiento: {e}')
