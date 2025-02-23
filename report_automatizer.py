@@ -14,9 +14,76 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime
 import json
 
-
-    
 def update_google_sheet(ventas_df, positions_df, fecha_pa_filtrar):
+    """
+    Actualiza Google Sheets con la fecha, utilidad total, porcentaje,
+    ventas totales y utilidades por acción individuales.
+    """
+    # Load credentials and setup
+    secrets = st.secrets["Google_cloud_platform"]
+    creds = Credentials.from_service_account_info(
+        json.loads(secrets["service_account_key"]),
+        scopes=["https://www.googleapis.com/auth/spreadsheets"],
+    )
+    client = gspread.authorize(creds)
+    sheet_id = "157CHLt-Re4oswqd_2c_1mXgkeVo8Sc-iOsafuBHUPJA"
+    workbook = client.open_by_key(sheet_id)
+    sheet = workbook.sheet1
+
+    # Get existing headers
+    headers = sheet.row_values(1)
+    
+    # Date formatting
+    fecha_datetime = datetime.strptime(fecha_pa_filtrar, "%m/%d/%Y")
+    fecha_hoy = fecha_datetime.strftime("%d/%m/%Y")
+
+    # Get main totals
+    utilidad_total = ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', 'UTILIDAD'].values[0]
+    porcentaje_utilidad = ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', '%'].values[0]
+    total_ventas = ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', 'venta_total'].values[0]
+
+    # Get per-stock utilities
+    stock_utilities = {}
+    for _, row in ventas_df.iterrows():
+        if row['ACCION'] not in ['TOTAL', 'SUB-TOTAL']:
+            symbol = row['ACCION']
+            stock_utilities[symbol] = row['UTILIDAD']
+
+    # Create new columns if needed
+    new_columns = []
+    for symbol in stock_utilities.keys():
+        col_name = f"UTILIDAD {symbol}"
+        if col_name not in headers:
+            new_columns.append(col_name)
+    
+    if new_columns:
+        # Add new columns to headers
+        sheet.insert_cols([new_columns], len(headers)+1)
+        # Refresh headers
+        headers = sheet.row_values(1)
+
+    # Prepare data row
+    base_data = [fecha_hoy, utilidad_total, total_ventas, porcentaje_utilidad]
+    
+    # Add per-stock utilities in correct column order
+    for header in headers[4:]:  # Skip first 4 fixed columns
+        if header.startswith("UTILIDAD "):
+            symbol = header[9:]
+            base_data.append(stock_utilities.get(symbol, ""))
+    
+    # Find first empty row
+    col_a = sheet.col_values(1)
+    fila_vacia = len(col_a) + 1
+
+    # Update the sheet
+    sheet.update(
+        f"A{fila_vacia}:{chr(65 + len(headers) - 1)}{fila_vacia}",
+        [base_data]
+    )
+
+    st.success("Datos actualizados con utilidades por acción")
+    
+def update_google_sheet6(ventas_df, positions_df, fecha_pa_filtrar):
     """
     Actualiza Google Sheets con la fecha de hoy, la utilidad total diaria,
     el porcentaje de utilidad y el total de ventas.
@@ -778,7 +845,7 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 def main():
     st.title('Procesador de Transacciones Financieras')
 
-    st.write('Por favor, sube los archivos de **portafolio** y **transacciones**.')
+    st.write('Por favor, sube los archivos de **portafolio**, **transacciones** y **posiciones**.')
 
     # Widgets para cargar archivos
     portafolio_file = st.file_uploader('Subir archivo de portafolio (formato Excel)', type=['xlsx'])
