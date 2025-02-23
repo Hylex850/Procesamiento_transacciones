@@ -16,72 +16,60 @@ import json
 
 def update_google_sheet(ventas_df, positions_df, fecha_pa_filtrar):
     """
-    Actualiza Google Sheets con la fecha, utilidad total, porcentaje,
-    ventas totales y utilidades por acción individuales.
+    Actualiza Google Sheets con utilidades por acción, creando columnas si no existen
     """
-    # Load credentials and setup
+    # Configuración inicial
     secrets = st.secrets["Google_cloud_platform"]
     creds = Credentials.from_service_account_info(
         json.loads(secrets["service_account_key"]),
         scopes=["https://www.googleapis.com/auth/spreadsheets"],
     )
     client = gspread.authorize(creds)
-    sheet_id = "157CHLt-Re4oswqd_2c_1mXgkeVo8Sc-iOsafuBHUPJA"
-    workbook = client.open_by_key(sheet_id)
-    sheet = workbook.sheet1
+    sheet = client.open_by_key("157CHLt-Re4oswqd_2c_1mXgkeVo8Sc-iOsafuBHUPJA").sheet1
 
-    # Get existing headers
+    # Obtener cabeceras existentes
     headers = sheet.row_values(1)
     
-    # Date formatting
-    fecha_datetime = datetime.strptime(fecha_pa_filtrar, "%m/%d/%Y")
-    fecha_hoy = fecha_datetime.strftime("%d/%m/%Y")
-
-    # Get main totals
+    # Procesar datos principales
+    fecha_hoy = datetime.strptime(fecha_pa_filtrar, "%m/%d/%Y").strftime("%d/%m/%Y")
     utilidad_total = ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', 'UTILIDAD'].values[0]
-    porcentaje_utilidad = ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', '%'].values[0]
     total_ventas = ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', 'venta_total'].values[0]
+    porcentaje_utilidad = ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', '%'].values[0]
 
-    # Get per-stock utilities
-    stock_utilities = {}
+    # Crear diccionario de utilidades por acción
+    utilidades = {}
     for _, row in ventas_df.iterrows():
         if row['ACCION'] not in ['TOTAL', 'SUB-TOTAL']:
             symbol = row['ACCION']
-            stock_utilities[symbol] = row['UTILIDAD']
+            utilidades[symbol] = row['UTILIDAD']
 
-    # Create new columns if needed
+    # Verificar y crear columnas faltantes
     new_columns = []
-    for symbol in stock_utilities.keys():
+    for symbol in utilidades.keys():
         col_name = f"UTILIDAD {symbol}"
         if col_name not in headers:
             new_columns.append(col_name)
+            headers.append(col_name)
     
+    # Actualizar cabeceras si hay nuevas columnas
     if new_columns:
-        # Add new columns to headers
-        sheet.insert_cols([new_columns], len(headers)+1)
-        # Refresh headers
-        headers = sheet.row_values(1)
+        sheet.update([headers], 'A1')
+        time.sleep(2)  # Esperar para actualización de API
 
-    # Prepare data row
-    base_data = [fecha_hoy, utilidad_total, total_ventas, porcentaje_utilidad]
+    # Construir fila de datos
+    data_row = [fecha_hoy, utilidad_total, total_ventas, porcentaje_utilidad]
     
-    # Add per-stock utilities in correct column order
-    for header in headers[4:]:  # Skip first 4 fixed columns
+    # Añadir utilidades en el orden correcto de columnas
+    for header in headers[4:]:
         if header.startswith("UTILIDAD "):
-            symbol = header[9:]
-            base_data.append(stock_utilities.get(symbol, ""))
-    
-    # Find first empty row
-    col_a = sheet.col_values(1)
-    fila_vacia = len(col_a) + 1
+            symbol = header.split()[-1]
+            data_row.append(utilidades.get(symbol, ""))
 
-    # Update the sheet
-    sheet.update(
-        f"A{fila_vacia}:{chr(65 + len(headers) - 1)}{fila_vacia}",
-        [base_data]
-    )
+    # Encontrar fila vacía y actualizar
+    next_row = len(sheet.col_values(1)) + 1
+    sheet.update(f'A{next_row}', [data_row])
 
-    st.success("Datos actualizados con utilidades por acción")
+    st.success("Actualización completada con utilidades por acción")
     
 def update_google_sheet6(ventas_df, positions_df, fecha_pa_filtrar):
     """
