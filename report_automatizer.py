@@ -13,9 +13,10 @@ import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
 import json
+import time
 
 def update_google_sheet(ventas_df, positions_df, fecha_pa_filtrar):
-    # Configurar conexión con Google Sheets
+    # Configurar conexión
     secrets = st.secrets["Google_cloud_platform"]
     creds = Credentials.from_service_account_info(
         json.loads(secrets["service_account_key"]),
@@ -24,56 +25,54 @@ def update_google_sheet(ventas_df, positions_df, fecha_pa_filtrar):
     client = gspread.authorize(creds)
     sheet = client.open_by_key("157CHLt-Re4oswqd_2c_1mXgkeVo8Sc-iOsafuBHUPJA").sheet1
 
-    # Obtener cabeceras existentes
+    # Obtener cabeceras actuales
     headers = sheet.row_values(1)
-    
-    # 1. Calcular utilidades por acción
+
+    # Paso 1: Calcular utilidades por acción (sumar duplicados)
     utilidades = ventas_df[
-        (ventas_df['ACCION'] != 'TOTAL') & 
-        (ventas_df['ACCION'] != 'SUB-TOTAL')
+        ~ventas_df['ACCION'].isin(['TOTAL', 'SUB-TOTAL'])
     ].groupby('ACCION')['UTILIDAD'].sum().to_dict()
 
-    # 2. Identificar columnas necesarias
-    columnas_requeridas = {f"UTILIDAD {symbol}" for symbol in utilidades.keys()}
+    # Paso 2: Identificar columnas necesarias
+    columnas_necesarias = {f"UTILIDAD {symbol}" for symbol in utilidades.keys()}
     columnas_existentes = set(headers)
-    
-    # 3. Crear columnas faltantes
-    nuevas_columnas = []
-    for columna in columnas_requeridas:
-        if columna not in columnas_existentes:
-            nuevas_columnas.append(columna)
-    
-    if nuevas_columnas:
-        # Añadir nuevas columnas al final
-        columna_inicio = len(headers) + 1
-        sheet.insert_cols([nuevas_columnas], columna_inicio)
-        headers += nuevas_columnas
 
-    # 4. Preparar fila de datos
+    # Paso 3: Crear nuevas columnas SOLO EN FILA 1
+    nuevas_columnas = []
+    for col in columnas_necesarias - columnas_existentes:
+        headers.append(col)
+        nuevas_columnas.append(col)
+
+    # Actualizar cabeceras si hay nuevas columnas
+    if nuevas_columnas:
+        sheet.update('A1', [headers])
+        time.sleep(2)  # Esperar actualización de Google Sheets
+
+    # Paso 4: Construir fila de datos
     fecha_hoy = datetime.strptime(fecha_pa_filtrar, "%m/%d/%Y").strftime("%d/%m/%Y")
-    utilidad_total = ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', 'UTILIDAD'].values[0]
-    total_ventas = ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', 'venta_total'].values[0]
-    porcentaje = ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', '%'].values[0]
-    
-    # Base de datos inicial
-    fila_datos = [fecha_hoy, utilidad_total, total_ventas, porcentaje]
-    
-    # Mapear utilidades a las columnas correspondientes
+    fila = [
+        fecha_hoy,
+        ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', 'UTILIDAD'].values[0],
+        ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', 'venta_total'].values[0],
+        ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', '%'].values[0]
+    ]
+
+    # Mapear utilidades al orden correcto de columnas
     for header in headers[4:]:
         if header.startswith("UTILIDAD "):
             symbol = header.split()[-1]
-            fila_datos.append(utilidades.get(symbol, ""))
+            fila.append(utilidades.get(symbol, 0))  # 0 si no hay utilidad
         else:
-            fila_datos.append("")  # Para columnas no relacionadas
+            fila.append("")  # Para otras columnas no relacionadas
 
-    # 5. Encontrar fila vacía y actualizar
-    fila_vacia = len(sheet.col_values(1)) + 1
+    # Paso 5: Escribir en nueva fila
+    next_row = len(sheet.col_values(1)) + 1
     sheet.update(
-        f"A{fila_vacia}:{chr(65 + len(headers) - 1)}{fila_vacia}",
-        [fila_datos]
+        f"A{next_row}:{chr(65 + len(headers) - 1)}{next_row}",
+        [fila]
     )
 
-    st.success("Actualización completada correctamente")
+    st.success("Datos actualizados correctamente con utilidades por acción")
     
 def update_google_sheet6(ventas_df, positions_df, fecha_pa_filtrar):
     """
