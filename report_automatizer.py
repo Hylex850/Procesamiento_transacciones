@@ -26,8 +26,10 @@ def update_google_sheet(ventas_df, positions_file, fecha_pa_filtrar):
     sheet = client.open_by_key("157CHLt-Re4oswqd_2c_1mXgkeVo8Sc-iOsafuBHUPJA").sheet1
 
     # Paso 1: Leer positions_file correctamente
-    positions_df = pd.read_csv(positions_file, skiprows=3)  # Saltar las primeras 3 líneas
-    positions_df.columns = positions_df.columns.str.strip()  # Limpiar nombres de columnas
+    positions_df = positions_file
+    positions_df.columns =positions_file
+
+    
 
     # Paso 2: Obtener patrimonio (Account Total)
     patrimonio = positions_df[
@@ -952,7 +954,9 @@ def main():
                     if not positions_file:
                         st.error("Se requiere el archivo de posiciones para el modo FT")
                         return
-                    positions_df = pd.read_csv(positions_file)
+                    # Paso 1: Leer positions_file correctamente
+                    positions_df = pd.read_csv(positions_file, skiprows=3)  # Saltar las primeras 3 líneas
+                    positions_df.columns = positions_df.columns.str.strip()  # Limpiar nombres de columnas
 
                 # Convertir fecha de filtro a formato datetime
                 fecha_pa_filtrar_dt = pd.to_datetime(fecha_pa_filtrar)
