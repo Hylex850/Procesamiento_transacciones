@@ -15,7 +15,7 @@ from datetime import datetime
 import json
 import time
 
-def update_google_sheet(ventas_df, positions_df, fecha_pa_filtrar):
+def update_google_sheet(ventas_df, positions_file, fecha_pa_filtrar):
     # Configurar conexión
     secrets = st.secrets["Google_cloud_platform"]
     creds = Credentials.from_service_account_info(
@@ -25,24 +25,28 @@ def update_google_sheet(ventas_df, positions_df, fecha_pa_filtrar):
     client = gspread.authorize(creds)
     sheet = client.open_by_key("157CHLt-Re4oswqd_2c_1mXgkeVo8Sc-iOsafuBHUPJA").sheet1
 
-    # Obtener cabeceras actuales
-    headers = sheet.row_values(1)
+    # Paso 1: Leer positions_file correctamente
+    positions_df = pd.read_csv(positions_file, skiprows=3)  # Saltar las primeras 3 líneas
+    positions_df.columns = positions_df.columns.str.strip()  # Limpiar nombres de columnas
 
-    # Paso 1: Calcular utilidades por acción (sumar duplicados)
-    utilidades = ventas_df[
-        ~ventas_df['ACCION'].isin(['TOTAL', 'SUB-TOTAL'])
-    ].groupby('ACCION')['UTILIDAD'].sum().to_dict()
-
-    # Paso 2: Obtener patrimonio del positions_df
+    # Paso 2: Obtener patrimonio (Account Total)
     patrimonio = positions_df[
         positions_df['Symbol'] == 'Account Total'
     ]['Mkt Val (Market Value)'].values[0]
 
-    # Paso 3: Identificar columnas necesarias (en minúscula)
+    # Paso 3: Calcular utilidades por acción (sumar duplicados)
+    utilidades = ventas_df[
+        ~ventas_df['ACCION'].isin(['TOTAL', 'SUB-TOTAL'])
+    ].groupby('ACCION')['UTILIDAD'].sum().to_dict()
+
+    # Paso 4: Obtener cabeceras actuales
+    headers = sheet.row_values(1)
+
+    # Paso 5: Identificar columnas necesarias (en minúscula)
     columnas_necesarias = {f"utilidad {symbol}" for symbol in utilidades.keys()}
     columnas_existentes = set(headers)
 
-    # Paso 4: Crear nuevas columnas SOLO EN FILA 1
+    # Paso 6: Crear nuevas columnas SOLO EN FILA 1
     nuevas_columnas = []
     for col in columnas_necesarias - columnas_existentes:
         headers.append(col)
@@ -53,7 +57,7 @@ def update_google_sheet(ventas_df, positions_df, fecha_pa_filtrar):
         sheet.update('A1', [headers])
         time.sleep(2)  # Esperar actualización de Google Sheets
 
-    # Paso 5: Construir fila de datos
+    # Paso 7: Construir fila de datos
     fecha_hoy = datetime.strptime(fecha_pa_filtrar, "%m/%d/%Y").strftime("%d/%m/%Y")
     fila = [
         fecha_hoy,  # Fecha
@@ -70,7 +74,7 @@ def update_google_sheet(ventas_df, positions_df, fecha_pa_filtrar):
         else:
             fila.append("")  # Para otras columnas no relacionadas
 
-    # Paso 6: Escribir en nueva fila
+    # Paso 8: Escribir en nueva fila
     next_row = len(sheet.col_values(1)) + 1
     sheet.update(
         f"A{next_row}:{chr(65 + len(headers) - 1)}{next_row}",
