@@ -33,6 +33,70 @@ def update_google_sheet(ventas_df, positions_df, fecha_pa_filtrar):
         ~ventas_df['ACCION'].isin(['TOTAL', 'SUB-TOTAL'])
     ].groupby('ACCION')['UTILIDAD'].sum().to_dict()
 
+    # Paso 2: Obtener patrimonio del positions_df
+    patrimonio = positions_df[
+        positions_df['Symbol'] == 'Account Total'
+    ]['Mkt Val (Market Value)'].values[0]
+
+    # Paso 3: Identificar columnas necesarias (en minúscula)
+    columnas_necesarias = {f"utilidad {symbol}" for symbol in utilidades.keys()}
+    columnas_existentes = set(headers)
+
+    # Paso 4: Crear nuevas columnas SOLO EN FILA 1
+    nuevas_columnas = []
+    for col in columnas_necesarias - columnas_existentes:
+        headers.append(col)
+        nuevas_columnas.append(col)
+
+    # Actualizar cabeceras si hay nuevas columnas
+    if nuevas_columnas:
+        sheet.update('A1', [headers])
+        time.sleep(2)  # Esperar actualización de Google Sheets
+
+    # Paso 5: Construir fila de datos
+    fecha_hoy = datetime.strptime(fecha_pa_filtrar, "%m/%d/%Y").strftime("%d/%m/%Y")
+    fila = [
+        fecha_hoy,  # Fecha
+        float(patrimonio.replace('$', '').replace(',', '')),  # Patrimonio
+        "",  # Cambio en el Patrimonio (no se modifica)
+        ventas_df.loc[ventas_df['ACCION'] == 'TOTAL', 'UTILIDAD'].values[0],  # Utilidad Total
+    ]
+
+    # Mapear utilidades al orden correcto de columnas
+    for header in headers[4:]:  # Saltar las primeras 4 columnas fijas
+        if header.startswith("utilidad "):
+            symbol = header.split()[-1]
+            fila.append(utilidades.get(symbol, 0))  # 0 si no hay utilidad
+        else:
+            fila.append("")  # Para otras columnas no relacionadas
+
+    # Paso 6: Escribir en nueva fila
+    next_row = len(sheet.col_values(1)) + 1
+    sheet.update(
+        f"A{next_row}:{chr(65 + len(headers) - 1)}{next_row}",
+        [fila]
+    )
+
+    st.success("Datos actualizados correctamente con el nuevo formato")
+
+def update_google_sheet2(ventas_df, positions_df, fecha_pa_filtrar):
+    # Configurar conexión
+    secrets = st.secrets["Google_cloud_platform"]
+    creds = Credentials.from_service_account_info(
+        json.loads(secrets["service_account_key"]),
+        scopes=["https://www.googleapis.com/auth/spreadsheets"],
+    )
+    client = gspread.authorize(creds)
+    sheet = client.open_by_key("157CHLt-Re4oswqd_2c_1mXgkeVo8Sc-iOsafuBHUPJA").sheet1
+
+    # Obtener cabeceras actuales
+    headers = sheet.row_values(1)
+
+    # Paso 1: Calcular utilidades por acción (sumar duplicados)
+    utilidades = ventas_df[
+        ~ventas_df['ACCION'].isin(['TOTAL', 'SUB-TOTAL'])
+    ].groupby('ACCION')['UTILIDAD'].sum().to_dict()
+
     # Paso 2: Identificar columnas necesarias
     columnas_necesarias = {f"UTILIDAD {symbol}" for symbol in utilidades.keys()}
     columnas_existentes = set(headers)
@@ -74,7 +138,7 @@ def update_google_sheet(ventas_df, positions_df, fecha_pa_filtrar):
 
     st.success("Datos actualizados correctamente con utilidades por acción")
     
-def update_google_sheet6(ventas_df, positions_df, fecha_pa_filtrar):
+def update_google_sheet1(ventas_df, positions_df, fecha_pa_filtrar):
     """
     Actualiza Google Sheets con la fecha de hoy, la utilidad total diaria,
     el porcentaje de utilidad y el total de ventas.
