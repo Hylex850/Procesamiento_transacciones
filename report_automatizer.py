@@ -15,7 +15,7 @@ from datetime import datetime
 import json
 import time
 
-def update_google_sheet(ventas_df, positions_file, fecha_pa_filtrar):
+def update_google_sheetnosirve(ventas_df, positions_file, fecha_pa_filtrar):
     # Configurar conexión
     secrets = st.secrets["Google_cloud_platform"]
     creds = Credentials.from_service_account_info(
@@ -85,7 +85,7 @@ def update_google_sheet(ventas_df, positions_file, fecha_pa_filtrar):
 
     st.success("Datos actualizados correctamente con el nuevo formato")
 
-def update_google_sheet2(ventas_df, positions_df, fecha_pa_filtrar):
+def update_google_sheet(ventas_df, positions_df, fecha_pa_filtrar):
     # Configurar conexión
     secrets = st.secrets["Google_cloud_platform"]
     creds = Credentials.from_service_account_info(
