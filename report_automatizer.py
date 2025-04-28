@@ -14,6 +14,7 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime
 import json
 import time
+from zoneinfo import ZoneInfo
 
 def update_google_sheet(ventas_df, positions_df, fecha_pa_filtrar):
     # Configurar conexión
@@ -208,7 +209,14 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
     # Replace 'Sell Short' with 'Sell' in the 'Action' column
     transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell Short", "Sell")
-
+    
+    # Replace 'Buy to Open' with 'Buy' in the 'Action' column
+    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Buy to Open", "Buy")
+    # Replace 'Sell to Open' with 'Sell' in the 'Action' column
+    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell to Open", "Sell")
+    
+    
+    
     # Creo dataframes de compras, ventas y de costo (ventas_df)
     buys_df = transacciones_dia[transacciones_dia['Action'] == 'Buy']
     buys_df = buys_df.drop(["Fees & Comm"], axis=1)
@@ -533,7 +541,13 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
     # Replace 'Sell Short' with 'Sell' in the 'Action' column
     transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell Short", "Sell")
-
+    
+    # Replace 'Buy to Open' with 'Buy' in the 'Action' column
+    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Buy to Open", "Buy")
+    # Replace 'Sell to Open' with 'Sell' in the 'Action' column
+    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell to Open", "Sell")
+    
+    
     # Creo dataframes de compras, ventas y de costo (ventas_df)
     buys_df = transacciones_dia[transacciones_dia['Action'] == 'Buy']
     buys_df = buys_df.drop(["Fees & Comm"], axis=1)
@@ -907,10 +921,14 @@ def main():
     portafolio_file = st.file_uploader('Subir archivo de portafolio (formato Excel)', type=['xlsx'])
     transacciones_file = st.file_uploader('Subir archivo de transacciones (formato CSV)', type=['csv'])
     positions_file = st.file_uploader('Subir archivo de posiciones (formato CSV)', type=['csv'])
-
+    
+    # Ahora en hora de Bogotá
+    ahora_bogota = datetime.now(ZoneInfo("America/Bogota"))
+    fecha_hoy = ahora_bogota.strftime("%m/%d/%Y")
+    
     # Inputs adicionales
-    fecha_pa_filtrar = st.text_input('Fecha para filtrar las transacciones (formato MM/DD/AAAA)', '10/24/2024')
-    dia_y_mes = st.text_input('Día y mes para los archivos de salida (ejemplo: 24octubre)', '24octubre')
+    fecha_pa_filtrar = st.text_input('Fecha para filtrar las transacciones (formato MM/DD/AAAA)', {fecha_hoy})
+    dia_y_mes = st.text_input('Día y mes para los archivos de salida (ejemplo: 28abril)', '28abril')
     
     
     # Selección del modo (CMB o FT)
