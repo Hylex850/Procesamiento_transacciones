@@ -927,7 +927,7 @@ def main():
     fecha_hoy = ahora_bogota.strftime("%m/%d/%Y")
     
     # Inputs adicionales
-    fecha_pa_filtrar = st.text_input('Fecha para filtrar las transacciones (formato MM/DD/AAAA)', {fecha_hoy})
+    fecha_pa_filtrar = st.text_input('Fecha para filtrar las transacciones (formato MM/DD/AAAA)', fecha_hoy)
     dia_y_mes = st.text_input('Día y mes para los archivos de salida (ejemplo: 28abril)', '28abril')
     
     
