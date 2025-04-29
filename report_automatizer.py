@@ -963,9 +963,6 @@ def main():
                 transacciones_dia = pd.read_csv(transacciones_file)
                 
 
-                transacciones_dia = transacciones_dia[
-                transacciones_dia['Date'] == fecha_pa_filtrar
-            ]
                 
                 # Leer posiciones solo si es necesario
                 positions_df = None
