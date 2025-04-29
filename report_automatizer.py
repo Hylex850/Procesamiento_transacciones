@@ -974,7 +974,7 @@ def main():
                 
                 # assuming fecha_pa_filtrar_dt is a Timestamp
                 transacciones_dia = transacciones_dia[
-                transacciones_dia['Date'].dt.date == fecha_pa_filtrar
+                transacciones_dia['Date'] == fecha_pa_filtrar
             ]
                 
                 # Leer posiciones solo si es necesario
