@@ -201,12 +201,7 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     # Leo archivos
     # Hago conversiones de fecha
     transacciones_dia['Date'] = pd.to_datetime(transacciones_dia['Date'])
-    """
-    # assuming fecha_pa_filtrar_dt is a Timestamp
-    transacciones_dia = transacciones_dia[
-    transacciones_dia['Date'].dt.date == fecha_pa_filtrar.date()
-]
-    """
+
 
     # Manipulo datos
     # Dropeo las columnas inservibles
@@ -539,12 +534,7 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     # Leo archivos
     # Hago conversiones de fecha
     transacciones_dia['Date'] = pd.to_datetime(transacciones_dia['Date'])
-    """
-    # assuming fecha_pa_filtrar_dt is a Timestamp
-    transacciones_dia = transacciones_dia[
-    transacciones_dia['Date'].dt.date == fecha_pa_filtrar.date()
-]
-    """
+
     # Manipulo datos
     # Dropeo las columnas inservibles
     transacciones_dia = transacciones_dia.drop(['Description', 'Amount'], axis=1)
@@ -972,7 +962,7 @@ def main():
                 portafolio = pd.read_excel(portafolio_file)
                 transacciones_dia = pd.read_csv(transacciones_file)
                 
-                # assuming fecha_pa_filtrar_dt is a Timestamp
+
                 transacciones_dia = transacciones_dia[
                 transacciones_dia['Date'] == fecha_pa_filtrar
             ]
