@@ -204,7 +204,7 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
     # Manipulo datos
     # Dropeo las columnas inservibles
-    transacciones_dia = transacciones_dia.drop(['Description', 'Amount'], axis=1)
+    transacciones_dia = transacciones_dia.drop(['Description',], axis=1)
     transacciones_dia = transacciones_dia[transacciones_dia['Date'] == fecha_pa_filtrar]
 
     # Replace 'Sell Short' with 'Sell' in the 'Action' column
@@ -221,7 +221,7 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
     # Creo dataframes de compras, ventas y de costo (ventas_df)
     buys_df = transacciones_dia[transacciones_dia['Action'] == 'Buy']
-    buys_df = buys_df.drop(["Fees & Comm"], axis=1)
+    #buys_df = buys_df.drop(["Fees & Comm"], axis=1)
     sells_df = transacciones_dia[transacciones_dia['Action'] == 'Sell']
 
     ventas_df = sells_df.copy()
@@ -435,7 +435,7 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     ventas_df = result_df
 
     # buys_df
-    buys_df['COMPRA TOTAL'] = buys_df['Quantity'] * buys_df['Price']
+    buys_df['COMPRA TOTAL'] = transacciones_dia["Amount"]
     buys_df = buys_df[["Date", "Symbol", 'Quantity', 'Price', "COMPRA TOTAL"]]
     buys_df.rename(columns={
         'Date': 'FECHA DE COMPRA',
@@ -538,7 +538,7 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
     # Manipulo datos
     # Dropeo las columnas inservibles
-    transacciones_dia = transacciones_dia.drop(['Description', 'Amount'], axis=1)
+    transacciones_dia = transacciones_dia.drop(['Description'], axis=1)
     transacciones_dia = transacciones_dia[transacciones_dia['Date'] == fecha_pa_filtrar]
 
     # Replace 'Sell Short' with 'Sell' in the 'Action' column
@@ -555,7 +555,7 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
     # Creo dataframes de compras, ventas y de costo (ventas_df)
     buys_df = transacciones_dia[transacciones_dia['Action'] == 'Buy']
-    buys_df = buys_df.drop(["Fees & Comm"], axis=1)
+    #buys_df = buys_df.drop(["Fees & Comm"], axis=1)
     sells_df = transacciones_dia[transacciones_dia['Action'] == 'Sell']
 
     ventas_df = sells_df.copy()
@@ -830,7 +830,8 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     ventas_df = result_df
 
     # buys_df
-    buys_df['COMPRA TOTAL'] = buys_df['Quantity'] * buys_df['Price']
+
+    buys_df['COMPRA TOTAL'] = transacciones_dia["Amount"]
     buys_df = buys_df[["Date", "Symbol", 'Quantity', 'Price', "COMPRA TOTAL"]]
     buys_df.rename(columns={
         'Date': 'FECHA DE COMPRA',
