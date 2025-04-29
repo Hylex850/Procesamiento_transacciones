@@ -139,7 +139,7 @@ def update_google_sheet2(ventas_df, positions_df, fecha_pa_filtrar):
     )
 
     st.success("Datos actualizados correctamente con utilidades por acción")
-    
+
 def update_google_sheet1(ventas_df, positions_df, fecha_pa_filtrar):
     """
     Actualiza Google Sheets con la fecha de hoy, la utilidad total diaria,
@@ -160,7 +160,7 @@ def update_google_sheet1(ventas_df, positions_df, fecha_pa_filtrar):
 
     # Get today's date
     #fecha_hoy = datetime.now().strftime("%Y-%m-%d")
-    
+
     # Convertir de mm/dd/yyyy a datetime
     fecha_datetime = datetime.strptime(fecha_pa_filtrar, "%m/%d/%Y")
 
@@ -191,7 +191,7 @@ def update_google_sheet1(ventas_df, positions_df, fecha_pa_filtrar):
 def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     # Inicio del primer código (Normal)
     # IMPORTANTE!!! PARAMETROS PARA EDITAR CADA VEZ QUE SE USE EL PROGRAMA
-    
+
     # Fecha para filtrar las transacciones
     # fecha_pa_filtrar = "10/24/2024"  # Ahora es un parámetro
 
@@ -202,7 +202,6 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     # Hago conversiones de fecha
     transacciones_dia['Date'] = pd.to_datetime(transacciones_dia['Date'])
 
-
     # Manipulo datos
     # Dropeo las columnas inservibles
     transacciones_dia = transacciones_dia.drop(['Description', 'Amount'], axis=1)
@@ -210,14 +209,14 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
     # Replace 'Sell Short' with 'Sell' in the 'Action' column
     transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell Short", "Sell")
-    
+
     # Replace 'Buy to Open' with 'Buy' in the 'Action' column
     transacciones_dia['Action'] = transacciones_dia['Action'].replace("Buy to Open", "Buy")
     # Replace 'Sell to Open' with 'Sell' in the 'Action' column
     transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell to Open", "Sell")
-    
-    
-    
+
+
+
     # Creo dataframes de compras, ventas y de costo (ventas_df)
     buys_df = transacciones_dia[transacciones_dia['Action'] == 'Buy']
     buys_df = buys_df.drop(["Fees & Comm"], axis=1)
@@ -254,7 +253,7 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
         'cantidad': buys_df['Quantity'],
         'precio_compra': buys_df['Price']
     })
-    
+
     converted_buys['valor_invertido'] = converted_buys['cantidad'] * converted_buys['precio_compra']
 
     portafolio_final = pd.concat([portafolio, converted_buys], ignore_index=True)
@@ -470,7 +469,7 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     result_df_buys = pd.concat([result_df_buys, pd.DataFrame([total_buys])], ignore_index=True)
 
     buys_df = result_df_buys
-    
+
     portafolio_final['valor_invertido'] = portafolio_final['cantidad'] * portafolio_final['precio_compra']
 
 
@@ -542,13 +541,13 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
     # Replace 'Sell Short' with 'Sell' in the 'Action' column
     transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell Short", "Sell")
-    
+
     # Replace 'Buy to Open' with 'Buy' in the 'Action' column
     transacciones_dia['Action'] = transacciones_dia['Action'].replace("Buy to Open", "Buy")
     # Replace 'Sell to Open' with 'Sell' in the 'Action' column
     transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell to Open", "Sell")
-    
-    
+
+
     # Creo dataframes de compras, ventas y de costo (ventas_df)
     buys_df = transacciones_dia[transacciones_dia['Action'] == 'Buy']
     buys_df = buys_df.drop(["Fees & Comm"], axis=1)
@@ -585,7 +584,7 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
         'cantidad': buys_df['Quantity'],
         'precio_compra': buys_df['Price']
     })
-    
+
     converted_buys['valor_invertido'] = converted_buys['cantidad'] * converted_buys['precio_compra']
 
 
@@ -684,7 +683,7 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
                     portafolio_final.at[compra_elegida.name, 'cantidad'] -= cantidad_compra
             else:
                 break
-            
+
     # Supongamos que ventas_df es tu DataFrame
 
     # Eliminar el signo de dólar y convertir a float
@@ -708,7 +707,7 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
 
     # In[147]:
-            
+
     # Iterar sobre cada fila del DataFrame de ventas
     for i, venta in ventas_df.iterrows():
         # Continuar solo si la cantidad vendida es mayor que la cantidad ya comprada
@@ -862,7 +861,7 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     result_df_buys = pd.concat([result_df_buys, pd.DataFrame([total_buys])], ignore_index=True)
 
     buys_df = result_df_buys
-    
+
     portafolio_final['valor_invertido'] = portafolio_final['cantidad'] * portafolio_final['precio_compra']
 
 
@@ -922,26 +921,27 @@ def main():
     portafolio_file = st.file_uploader('Subir archivo de portafolio (formato Excel)', type=['xlsx'])
     transacciones_file = st.file_uploader('Subir archivo de transacciones (formato CSV)', type=['csv'])
     positions_file = st.file_uploader('Subir archivo de posiciones (formato CSV)', type=['csv'])
-    
+
     # Ahora en hora de Bogotá
     ahora_bogota = datetime.now(ZoneInfo("America/Bogota"))
     fecha_hoy = ahora_bogota.strftime("%m/%d/%Y")
-    
+
     # Inputs adicionales
+
     fecha_pa_filtrar = st.text_input('Fecha para filtrar las transacciones (formato MM/DD/AAAA)', fecha_hoy)
     dia_y_mes = st.text_input('Día y mes para los archivos de salida (ejemplo: 28abril)', '28abril')
-    
-    
+
+
     # Selección del modo (CMB o FT)
     modo = st.radio('Seleccione el modo:', ['CMB (Normal)', 'FT (Sube resultados al Excel de google)'])
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
     # Selección del código a utilizar
     codigo_seleccionado = st.radio('Seleccione el código a utilizar:', ['Normal (pueden quedar huecos)', 'Sin huecos (los cortos se manejan como perdida)'])
 
@@ -961,9 +961,7 @@ def main():
                 # Leer los archivos cargados
                 portafolio = pd.read_excel(portafolio_file)
                 transacciones_dia = pd.read_csv(transacciones_file)
-                
 
-                
                 # Leer posiciones solo si es necesario
                 positions_df = None
                 if modo == 'FT (Sube resultados al Excel de google)':
@@ -976,7 +974,7 @@ def main():
 
                 # Convertir fecha de filtro a formato datetime
                 fecha_pa_filtrar_dt = pd.to_datetime(fecha_pa_filtrar)
-                
+
                 # Ejecutar el código seleccionado
                 if codigo_seleccionado == 'Normal (pueden quedar huecos)':
                     ventas_df, buys_df, portafolio_final = process_normal(portafolio, transacciones_dia, fecha_pa_filtrar_dt, dia_y_mes)
@@ -1000,7 +998,7 @@ def main():
                 st.session_state['ventas_xlsx'] = convertir_a_excel(ventas_df)
                 st.session_state['buys_xlsx'] = convertir_a_excel(buys_df)
                 st.session_state['portafolio_xlsx'] = convertir_a_excel(portafolio_final)
-                
+
                 # Si el modo es FT, actualizar Google Sheets
                 if modo == 'FT (Sube resultados al Excel de google)':
                     update_google_sheet(ventas_df, positions_df, fecha_pa_filtrar)
@@ -1013,7 +1011,7 @@ def main():
     # Mostrar los botones de descarga si los archivos están disponibles en session_state
     if st.session_state['ventas_xlsx'] and st.session_state['buys_xlsx'] and st.session_state['portafolio_xlsx']:
         st.write('### Archivos Generados')
-        
+
         st.download_button(
             label=f'Descargar costo_{dia_y_mes}.xlsx',
             data=st.session_state['ventas_xlsx'],
@@ -1036,4 +1034,3 @@ def main():
         )
 
 if __name__ == '__main__':
-    main()
