@@ -926,7 +926,7 @@ def main():
     ahora_bogota = datetime.now(ZoneInfo("America/Bogota"))
     fecha_hoy = ahora_bogota.strftime("%m/%d/%Y")
 
-    # Inputs adicionales
+    # Inputs adicionales buenos
 
     fecha_pa_filtrar = st.text_input('Fecha para filtrar las transacciones (formato MM/DD/AAAA)', fecha_hoy)
     dia_y_mes = st.text_input('Día y mes para los archivos de salida (ejemplo: 28abril)', '28abril')
