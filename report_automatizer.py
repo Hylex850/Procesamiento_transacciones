@@ -214,8 +214,10 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     transacciones_dia['Action'] = transacciones_dia['Action'].replace("Buy to Open", "Buy")
     # Replace 'Sell to Open' with 'Sell' in the 'Action' column
     transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell to Open", "Sell")
-
-
+    # Replace 'Sell to Close' with 'Sell' in the 'Action' column
+    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell to Close", "Sell")
+    # Replace 'Buy to Close' with 'Buy' in the 'Action' column
+    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Buy to Close", "Buy")
 
     # Creo dataframes de compras, ventas y de costo (ventas_df)
     buys_df = transacciones_dia[transacciones_dia['Action'] == 'Buy']
@@ -542,11 +544,14 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     # Replace 'Sell Short' with 'Sell' in the 'Action' column
     transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell Short", "Sell")
 
-    # Replace 'Buy to Open' with 'Buy' in the 'Action' column
+    # Replace 'Buy to Open' with 'Buy' in the 'Action' column final
     transacciones_dia['Action'] = transacciones_dia['Action'].replace("Buy to Open", "Buy")
     # Replace 'Sell to Open' with 'Sell' in the 'Action' column
     transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell to Open", "Sell")
-
+    # Replace 'Sell to Close' with 'Sell' in the 'Action' column
+    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell to Close", "Sell")
+    # Replace 'Buy to Close' with 'Buy' in the 'Action' column
+    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Buy to Close", "Buy")
 
     # Creo dataframes de compras, ventas y de costo (ventas_df)
     buys_df = transacciones_dia[transacciones_dia['Action'] == 'Buy']
