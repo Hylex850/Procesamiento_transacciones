@@ -201,12 +201,12 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     # Leo archivos
     # Hago conversiones de fecha
     transacciones_dia['Date'] = pd.to_datetime(transacciones_dia['Date'])
-    
+    """
     # assuming fecha_pa_filtrar_dt is a Timestamp
     transacciones_dia = transacciones_dia[
     transacciones_dia['Date'].dt.date == fecha_pa_filtrar.date()
 ]
-
+    """
 
     # Manipulo datos
     # Dropeo las columnas inservibles
@@ -539,12 +539,12 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     # Leo archivos
     # Hago conversiones de fecha
     transacciones_dia['Date'] = pd.to_datetime(transacciones_dia['Date'])
-    
+    """
     # assuming fecha_pa_filtrar_dt is a Timestamp
     transacciones_dia = transacciones_dia[
     transacciones_dia['Date'].dt.date == fecha_pa_filtrar.date()
 ]
-
+    """
     # Manipulo datos
     # Dropeo las columnas inservibles
     transacciones_dia = transacciones_dia.drop(['Description', 'Amount'], axis=1)
@@ -972,6 +972,11 @@ def main():
                 portafolio = pd.read_excel(portafolio_file)
                 transacciones_dia = pd.read_csv(transacciones_file)
                 
+                # assuming fecha_pa_filtrar_dt is a Timestamp
+                transacciones_dia = transacciones_dia[
+                transacciones_dia['Date'].dt.date == fecha_pa_filtrar
+            ]
+                
                 # Leer posiciones solo si es necesario
                 positions_df = None
                 if modo == 'FT (Sube resultados al Excel de google)':
@@ -984,7 +989,7 @@ def main():
 
                 # Convertir fecha de filtro a formato datetime
                 fecha_pa_filtrar_dt = pd.to_datetime(fecha_pa_filtrar)
-
+                
                 # Ejecutar el código seleccionado
                 if codigo_seleccionado == 'Normal (pueden quedar huecos)':
                     ventas_df, buys_df, portafolio_final = process_normal(portafolio, transacciones_dia, fecha_pa_filtrar_dt, dia_y_mes)
