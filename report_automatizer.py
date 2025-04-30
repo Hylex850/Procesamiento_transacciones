@@ -237,7 +237,9 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
     buys_df['Price'] = buys_df['Price'].str.replace('$', '').astype(float)
     
-    buys_df['Fees & Comm'] = buys_df['Fees & Comm'].str.replace('$', '').astype(float)
+    
+    #NUEVO
+    buys_df['Amount'] = buys_df['Amount'].str.replace('$', '').astype(float)
     
     ventas_df['Price'] = ventas_df['Price'].str.replace('$', '').astype(float)
     portafolio['precio_compra'] = portafolio['precio_compra'].astype(float)
@@ -273,6 +275,13 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
     copia_ventas_df['Fees & Comm'] = copia_ventas_df['Fees & Comm'].replace('[\$,]', '', regex=True).astype(float)
     copia_ventas_df['Fees & Comm'].fillna(0, inplace=True)
+    
+    
+    #NUEVO
+    buys_df['Amount'] = buys_df['Amount'].str.replace('$', '').astype(float)
+    buys_df['Amount'] = buys_df['Amount'].replace('[\$,]', '', regex=True).astype(float)
+    
+
     
     buys_df['Fees & Comm'] = buys_df['Fees & Comm'].replace('[\$,]', '', regex=True).astype(float)
     buys_df['Fees & Comm'].fillna(0, inplace=True)
@@ -577,7 +586,11 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
     buys_df['Price'] = buys_df['Price'].str.replace('$', '').astype(float)
     
+    
+    #NUEVO
     buys_df['Fees & Comm'] = buys_df['Fees & Comm'].str.replace('$', '').astype(float)
+    
+    
 
     
     ventas_df['Price'] = ventas_df['Price'].str.replace('$', '').astype(float)
@@ -619,7 +632,11 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     buys_df['Fees & Comm'] = buys_df['Fees & Comm'].replace('[\$,]', '', regex=True).astype(float)
     buys_df['Fees & Comm'].fillna(0, inplace=True)
 
-
+    #NUEVO
+    buys_df['Amount'] = buys_df['Amount'].str.replace('$', '').astype(float)
+    buys_df['Amount'] = buys_df['Amount'].replace('[\$,]', '', regex=True).astype(float)
+    
+    
     # Iterar sobre cada fila del DataFrame de ventas
     for i, venta in copia_ventas_df.iterrows():
         while venta['Quantity'] > venta['Quantity_compra']:
