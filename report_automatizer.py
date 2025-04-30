@@ -203,7 +203,7 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
     # Manipulo datos
     # Dropeo las columnas inservibles
-    transacciones_dia = transacciones_dia.drop(['Description', 'Amount'], axis=1)
+    transacciones_dia = transacciones_dia.drop(['Description'], axis=1)
     transacciones_dia = transacciones_dia[transacciones_dia['Date'] == fecha_pa_filtrar]
 
     # Replace 'Sell Short' with 'Sell' in the 'Action' column
@@ -543,7 +543,7 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
     # Manipulo datos
     # Dropeo las columnas inservibles
-    transacciones_dia = transacciones_dia.drop(['Description', 'Amount'], axis=1)
+    transacciones_dia = transacciones_dia.drop(['Description'], axis=1)
     transacciones_dia = transacciones_dia[transacciones_dia['Date'] == fecha_pa_filtrar]
 
     # Replace 'Sell Short' with 'Sell' in the 'Action' column
