@@ -252,13 +252,13 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
         else:
             return column
 
-    buys_df['Price'] = buys_df['Price'].str.replace('$', '').astype(float)
+    #buys_df['Price'] = buys_df['Price'].str.replace('$', '').astype(float)
     
     
-    #NUEVO
-    buys_df['Amount'] = buys_df['Amount'].str.replace('$', '').astype(float)
+
+    buys_df['Fees & Comm'] = buys_df['Fees & Comm'].str.replace('$', '').astype(float)
     
-    ventas_df['Price'] = ventas_df['Price'].str.replace('$', '').astype(float)
+    #ventas_df['Price'] = ventas_df['Price'].str.replace('$', '').astype(float)
     portafolio['precio_compra'] = portafolio['precio_compra'].astype(float)
 
     sells_df['Quantity'] = clean_and_convert(sells_df['Quantity'])
@@ -611,7 +611,7 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
         else:
             return column
 
-    buys_df['Price'] = buys_df['Price'].str.replace('$', '').astype(float)
+    #buys_df['Price'] = buys_df['Price'].str.replace('$', '').astype(float)
     
     
     #NUEVO
@@ -620,7 +620,9 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     
 
     
-    ventas_df['Price'] = ventas_df['Price'].str.replace('$', '').astype(float)
+    #ventas_df['Price'] = ventas_df['Price'].str.replace('$', '').astype(float)
+    
+    
     portafolio['precio_compra'] = portafolio['precio_compra'].astype(float)
 
     sells_df['Quantity'] = clean_and_convert(sells_df['Quantity'])
