@@ -209,14 +209,34 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     # Replace 'Sell Short' with 'Sell' in the 'Action' column
     transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell Short", "Sell")
 
-    # Replace 'Buy to Open' with 'Buy' in the 'Action' column
-    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Buy to Open", "Buy")
-    # Replace 'Sell to Open' with 'Sell' in the 'Action' column
-    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell to Open", "Sell")
-    # Replace 'Sell to Close' with 'Sell' in the 'Action' column
-    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell to Close", "Sell")
-    # Replace 'Buy to Close' with 'Buy' in the 'Action' column
-    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Buy to Close", "Buy")
+
+
+        # 1) Marca las operaciones de opciones
+    option_mask = transacciones_dia['Action'].isin([
+        "Buy to Open", "Sell to Open", "Sell to Close", "Buy to Close"
+    ])
+    
+    # 2) Limpia Price a float (quita '$') y aplícalo a todo
+    transacciones_dia['Price'] = (
+        transacciones_dia['Price']
+        .str.replace('$', '', regex=False)
+        .astype(float)
+    )
+    
+    # 3) Multiplica por 100 solo en las opciones
+    transacciones_dia.loc[option_mask, 'Price'] *= 100
+    
+    # 4) Ahora normaliza el Action
+    transacciones_dia['Action'] = transacciones_dia['Action'].replace({
+        "Buy to Open": "Buy",
+        "Sell to Open": "Sell",
+        "Sell to Close": "Sell",
+        "Buy to Close": "Buy"
+    })
+
+
+
+
 
     # Creo dataframes de compras, ventas y de costo (ventas_df)
     buys_df = transacciones_dia[transacciones_dia['Action'] == 'Buy']
@@ -558,14 +578,28 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     # Replace 'Sell Short' with 'Sell' in the 'Action' column
     transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell Short", "Sell")
 
-    # Replace 'Buy to Open' with 'Buy' in the 'Action' column final
-    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Buy to Open", "Buy")
-    # Replace 'Sell to Open' with 'Sell' in the 'Action' column
-    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell to Open", "Sell")
-    # Replace 'Sell to Close' with 'Sell' in the 'Action' column
-    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Sell to Close", "Sell")
-    # Replace 'Buy to Close' with 'Buy' in the 'Action' column
-    transacciones_dia['Action'] = transacciones_dia['Action'].replace("Buy to Close", "Buy")
+        # 1) Marca las operaciones de opciones
+    option_mask = transacciones_dia['Action'].isin([
+        "Buy to Open", "Sell to Open", "Sell to Close", "Buy to Close"
+    ])
+    
+    # 2) Limpia Price a float (quita '$') y aplícalo a todo
+    transacciones_dia['Price'] = (
+        transacciones_dia['Price']
+        .str.replace('$', '', regex=False)
+        .astype(float)
+    )
+    
+    # 3) Multiplica por 100 solo en las opciones
+    transacciones_dia.loc[option_mask, 'Price'] *= 100
+    
+    # 4) Ahora normaliza el Action
+    transacciones_dia['Action'] = transacciones_dia['Action'].replace({
+        "Buy to Open": "Buy",
+        "Sell to Open": "Sell",
+        "Sell to Close": "Sell",
+        "Buy to Close": "Buy"
+    })
 
     # Creo dataframes de compras, ventas y de costo (ventas_df)
     buys_df = transacciones_dia[transacciones_dia['Action'] == 'Buy']
