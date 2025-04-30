@@ -441,7 +441,7 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
     # buys_df
     buys_df['COMPRA TOTAL'] = buys_df['Quantity'] * buys_df['Price'] + buys_df['Fees & Comm']
-    buys_df = buys_df[["Date", "Symbol", 'Quantity', 'Price', "COMPRA TOTAL"]]
+    buys_df = buys_df[["Date", "Symbol", 'Quantity', 'Price', "COMPRA TOTAL", "Fees & Comm", "Amount"]]
     buys_df.rename(columns={
         'Date': 'FECHA DE COMPRA',
         'Symbol': 'ACCION',
@@ -844,7 +844,7 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
 
     # buys_df
     buys_df['COMPRA TOTAL'] = buys_df['Quantity'] * buys_df['Price'] + buys_df['Fees & Comm']
-    buys_df = buys_df[["Date", "Symbol", 'Quantity', 'Price', "COMPRA TOTAL"]]
+    buys_df = buys_df[["Date", "Symbol", 'Quantity', 'Price', "COMPRA TOTAL", "Fees & Comm", "Amount"]]
     buys_df.rename(columns={
         'Date': 'FECHA DE COMPRA',
         'Symbol': 'ACCION',
