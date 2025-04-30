@@ -217,11 +217,8 @@ def process_normal(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     ])
     
     # 2) Limpia Price a float (quita '$') y aplícalo a todo
-    transacciones_dia['Price'] = (
-        transacciones_dia['Price']
-        .str.replace('$', '', regex=False)
-        .astype(float)
-    )
+    transacciones_dia['Price'] = transacciones_dia['Price'].str.replace('$', '').astype(float)
+
     
     # 3) Multiplica por 100 solo en las opciones
     transacciones_dia.loc[option_mask, 'Price'] *= 100
@@ -584,12 +581,8 @@ def process_opcion2(portafolio, transacciones_dia, fecha_pa_filtrar, dia_y_mes):
     ])
     
     # 2) Limpia Price a float (quita '$') y aplícalo a todo
-    transacciones_dia['Price'] = (
-        transacciones_dia['Price']
-        .str.replace('$', '', regex=False)
-        .astype(float)
-    )
-    
+    transacciones_dia['Price'] = transacciones_dia['Price'].str.replace('$', '').astype(float)
+
     # 3) Multiplica por 100 solo en las opciones
     transacciones_dia.loc[option_mask, 'Price'] *= 100
     
